@@ -1,0 +1,18 @@
+dev:
+    summary: Start the necessary infrastructure for local develop
+    command: run start-zk && run start-kafka
+
+start-zk:
+    summary: Start zookeeper running locally
+    command: zkserver start
+
+start-kafka:
+    summary: Start kafka running locally
+    command: /usr/local/Cellar/kafka/{{.kafkaVersion}}/bin/kafka-server-start /usr/local/etc/kafka/server.properties
+
+clean:
+    summary: stop any start background tasks
+    command: zkserver stop
+
+variables:
+    kafkaVersion: "0.10.2.0"
