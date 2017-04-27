@@ -1,20 +1,20 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/graphql-go/handler"
-	graphiql "github.com/mnmtanish/go-graphiql"
+	"github.com/graphql-go/graphql"
+	nautilus "github.com/nautilus/services/http"
 )
 
+// MaestroAPI is the service that acts as the interface between the
+// various clients and the backend services.
+type MaestroAPI struct{}
+
+// Schema returns the graphql schema associated with this service.
+func (s *MaestroAPI) Schema() *graphql.Schema {
+	return Schema
+}
+
 func main() {
-	// attach the graphql endpoints
-	http.Handle("/graphql", handler.New(&handler.Config{
-		Schema: Schema,
-		Pretty: true,
-	}))
-	http.HandleFunc("/graphiql", graphiql.ServeGraphiQL)
-	// start the server
-	log.Fatal(http.ListenAndServe(":4000", nil))
+	// start the api service
+	nautilus.Start(&MaestroAPI{}, nil)
 }
