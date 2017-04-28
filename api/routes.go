@@ -4,15 +4,14 @@ import (
 	"net/http"
 
 	"github.com/nautilus/services/graphql"
-	goji "goji.io"
 )
 
 // the routes that this service
 func (s *MaestroAPI) Router() http.Handler {
 	// create an empty mux we can play with
-	mux := goji.NewMux()
+	mux := http.NewServeMux()
 
-	// add the graphl routes to it
+	// add the graphl routes to the service mux
 	GraphqlService.AddRoutes(s, mux)
 
 	// return the router we just made
