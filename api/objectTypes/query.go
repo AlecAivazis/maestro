@@ -17,7 +17,7 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 				// the broker that made the request
 				broker := p.Context.Value(GraphqlService.BrokerCtx).(events.EventBroker)
 				// a channel to recieve a response
-				ansChan := make(chan string, 1)
+				ansChan := make(chan *events.Action, 1)
 				errChan := make(chan error, 1)
 
 				// publish an action
@@ -31,7 +31,7 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 				// if we were successful
 				case r := <-ansChan:
 					// return the response
-					return r, nil
+					return r.Payload, nil
 				// if something went wrong
 				case e := <-errChan:
 					// return the error
