@@ -1,6 +1,6 @@
 # Maestro
 
-A project management system built for developers with everyone else in mind
+A project management and build system built for developers with everyone else in mind
 
 ## Running locally
 
