@@ -8,6 +8,12 @@ import (
 	"github.com/AlecAivazis/maestro/common"
 )
 
+// MaestroRepo is the service responsible for retrieving information for a
+// given repo
+type MaestroRepo struct {
+	events.EventBroker
+}
+
 func (s *MaestroRepo) HandleAction(a *events.Action) {
 	// what we do with the action depends on the type
 	switch a.Type {
@@ -16,7 +22,7 @@ func (s *MaestroRepo) HandleAction(a *events.Action) {
 		// get the information associated with the particular repo
 		reply := &events.Action{
 			Type:    "Awesome",
-			Payload: "Opossum",
+			Payload: "Greeting from Repo Service",
 		}
 
 		// send the reply

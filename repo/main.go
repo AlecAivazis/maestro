@@ -5,12 +5,6 @@ import (
 	"github.com/nautilus/services"
 )
 
-// MaestroRepo is the service responsible for retrieving information for a
-// given repo
-type MaestroRepo struct {
-	events.EventBroker
-}
-
 func main() {
 
 	// try to connect to kafka
