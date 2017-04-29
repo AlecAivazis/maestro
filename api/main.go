@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/graphql-go/graphql"
 	"github.com/nautilus/events"
-	"github.com/nautilus/events/kafka"
-	n "github.com/nautilus/services"
+
+	"github.com/nautilus/services"
 	nHttp "github.com/nautilus/services/http"
 )
 
@@ -21,20 +21,22 @@ func (s *MaestroAPI) Schema() *graphql.Schema {
 
 func main() {
 	// try to connect to kafka
-	broker, err := KafkaBroker.New(&KafkaBroker.NewOptions{
-		Topic: "build",
+	broker, err := events.NewKafkaBroker(&events.NewKafkaBrokerOptions{
+		Topic: "api",
 	})
 	if err != nil {
 		panic(err)
 	}
 
 	// an instance of the service
-	service := &MaestroAPI{
+	service := MaestroAPI{
 		EventBroker: broker,
 	}
 
 	// start the event listener
-	go n.Start(service, nil)
+	go Service.Start(&service, &Service.RuntimeConfig{
+		EventBroker: service,
+	})
 	// start the api service
-	nHttp.Start(service, nil)
+	nHttp.Start(&service, nil)
 }
