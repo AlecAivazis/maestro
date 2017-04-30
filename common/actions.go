@@ -8,4 +8,5 @@ type BuildProjectPayload struct {
 
 const (
 	ActionBuildProject = "BuildProject"
+	ActionLogAction    = "LogAction"
 )
