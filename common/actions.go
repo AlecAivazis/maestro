@@ -1,6 +1,10 @@
 package common
 
+type BuildProjectPayload struct {
+	URL    string
+	Branch string
+}
+
 const (
-	ActionRetrieveRepo   = "RetrieveRepo"
-	ActionRetrieveBranch = "RetrieveBranch"
+	ActionBuildProject = "BuildProject"
 )

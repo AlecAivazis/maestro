@@ -22,7 +22,7 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 
 				// publish an action
 				broker.Ask("repo", ansChan, errChan, &events.Action{
-					Type:    common.ActionRetrieveRepo,
+					Type:    common.ActionBuildProject,
 					Payload: "world",
 				})
 

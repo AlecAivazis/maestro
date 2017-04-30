@@ -6,10 +6,9 @@ import (
 )
 
 func main() {
-
 	// try to connect to kafka
 	broker, err := events.NewKafkaBroker(&events.NewKafkaBrokerOptions{
-		Topic: "repo",
+		Topic: "build",
 	})
 	if err != nil {
 		panic(err)
