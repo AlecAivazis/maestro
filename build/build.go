@@ -44,13 +44,24 @@ func (s *MaestroRepo) HandleAction(a *events.Action) {
 			return
 		}
 
-		// build the image in the directory
-		// opts := docker.BuildImageOptions{
-		// 	Name:        payload.Branch,
-		// 	InputStream: &dockerfile,
-		// }
-		// run the maestro script inside of the container
+		// we should publish the output to the log service
+		writer, err := common.LogWriter(s, "BuildProject")
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 
+		// build the image specified by the dockerfile
+		err = client.BuildImage(docker.BuildImageOptions{
+			Name:         payload.Branch,
+			InputStream:  &dockerfile,
+			OutputStream: writer,
+		})
+		// if something went wrong
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 	}
 }
 
