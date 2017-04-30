@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"io"
 
 	"github.com/nautilus/events"
@@ -12,9 +13,16 @@ type logWriter struct {
 }
 
 func (w *logWriter) Write(payload []byte) (int, error) {
+	// summarize the log with the label
+	action := LogPayload{
+		Label:   w.Label,
+		Payload: string(payload),
+	}
+	payload, err := json.Marshal(action)
+
 	// attempt to publish the payload with the appropriate label
-	err := w.Publish("log", &events.Action{
-		Type:    w.Label,
+	err = w.Publish("log", &events.Action{
+		Type:    ActionLogAction,
 		Payload: string(payload),
 	})
 	// if something went wrong
