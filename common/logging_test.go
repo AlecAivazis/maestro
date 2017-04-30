@@ -3,19 +3,29 @@ package common
 import (
 	"testing"
 
+	"encoding/json"
+
 	"github.com/nautilus/events"
 )
 
 func TestLogging_writerPublishesToLogging(t *testing.T) {
 	// a mock event broker we can test with
 	broker := events.NewMockEventBroker()
-	// the label for the log
-	label := "ProjectBuildLog"
 	// the byte string we are going to write
-	payload := []byte("hello world")
+	action := LogPayload{
+		Label:   "log label",
+		Payload: "hello world",
+	}
+	payload, err := json.Marshal(action)
+	// if something went wrong
+	if err != nil {
+		//  the test failed
+		t.Error(err)
+		return
+	}
 
 	// create the writer appropriate for this broker
-	writer, err := LogWriter(broker, label)
+	writer, err := LogWriter(broker, action.Label)
 	// if something went wrong
 	if err != nil {
 		//  the test failed
@@ -29,12 +39,12 @@ func TestLogging_writerPublishesToLogging(t *testing.T) {
 
 	// we are expecting messages to be published on the log topioc
 	broker.ExpectPublish("log", &events.Action{
-		Type:    label,
+		Type:    ActionLogAction,
 		Payload: string(payload),
 	})
 
 	// attempt to write the byte string to the writer
-	l, err := writer.Write(payload)
+	l, err := writer.Write([]byte(action.Payload))
 
 	switch {
 	// if ther was something wrong

@@ -6,6 +6,11 @@ type BuildProjectPayload struct {
 	TempDir string `json:"tempDir"`
 }
 
+type LogPayload struct {
+	Label   string `json:"label"`
+	Payload string `json:"payload"`
+}
+
 const (
 	ActionBuildProject = "BuildProject"
 	ActionLogAction    = "LogAction"
