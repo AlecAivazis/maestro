@@ -1,8 +1,9 @@
 package common
 
 type BuildProjectPayload struct {
-	URL    string
-	Branch string
+	URL     string `json:"url"`
+	Branch  string `json:"branch"`
+	TempDir string `json:"tempDir"`
 }
 
 const (
