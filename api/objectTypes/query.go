@@ -21,10 +21,10 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 				errChan := make(chan error, 1)
 
 				// publish an action
-				broker.Ask("repo", &events.Action{
+				broker.Ask("repo", ansChan, errChan, &events.Action{
 					Type:    common.ActionRetrieveRepo,
 					Payload: "world",
-				}, ansChan, errChan)
+				})
 
 				// wait for some kind of a reply
 				select {
