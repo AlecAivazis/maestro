@@ -2,18 +2,25 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"text/template"
 
-	"github.com/fsouza/go-dockerclient"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+	"github.com/jhoonb/archivex"
 	"github.com/nautilus/events"
+	"github.com/spf13/afero"
 
 	"github.com/AlecAivazis/maestro/common"
 )
 
 var (
-	client               *docker.Client
+	cli                  *client.Client
 	golangDockerTemplate *template.Template
 )
 
@@ -21,6 +28,7 @@ var (
 // given repo
 type MaestroRepo struct {
 	events.EventBroker
+	Fs afero.Fs
 }
 
 func (s *MaestroRepo) HandleAction(a *events.Action) {
@@ -37,8 +45,8 @@ func (s *MaestroRepo) HandleAction(a *events.Action) {
 		}
 
 		// render the template with the appropriate language
-		dockerfile := bytes.Buffer{}
-		err = golangDockerTemplate.Execute(&dockerfile, payload)
+		doc := &bytes.Buffer{}
+		err = golangDockerTemplate.Execute(doc, payload)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -51,28 +59,41 @@ func (s *MaestroRepo) HandleAction(a *events.Action) {
 			return
 		}
 
-		// build the image specified by the dockerfile
-		err = client.BuildImage(docker.BuildImageOptions{
-			Name:         payload.Branch,
-			InputStream:  &dockerfile,
-			OutputStream: writer,
-		})
-		// if something went wrong
+		// create a tarball
+		tempDir := afero.GetTempDir(s.Fs, "")
+		tarballPath := filepath.Join(tempDir, "docker")
+		tar := new(archivex.TarFile)
+		tar.Create(tarballPath)
+		tar.Add("Dockerfile", doc.Bytes())
+		tar.Close()
+
+		dockerBuildContext, err := os.Open(tarballPath + ".tar")
+		defer dockerBuildContext.Close()
+
+		opts := types.ImageBuildOptions{}
+
+		resp, err := cli.ImageBuild(context.Background(), dockerBuildContext, opts)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
+		}
+		// make sure we close the body when we're done
+		defer resp.Body.Close()
+
+		// copy the output to the log service
+		if _, err = io.Copy(writer, resp.Body); err != nil {
+			fmt.Println(err.Error())
 		}
 	}
 }
 
 func init() {
 	// connect to the local docker socket to build the image
-	endpoint := "unix:///var/run/docker.sock"
-	dClient, err := docker.NewClient(endpoint)
+	dClient, err := client.NewEnvClient()
 	if err != nil {
 		panic(err)
 	}
-	client = dClient
+	cli = dClient
 
 	// compile the dockerfile templates
 	golangDockerTemplate = template.Must(template.New("golang").Parse(dockerfileGolang))

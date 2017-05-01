@@ -14,16 +14,20 @@ type logWriter struct {
 
 func (w *logWriter) Write(payload []byte) (int, error) {
 	// summarize the log with the label
-	action := LogPayload{
+	input, err := json.Marshal(LogPayload{
 		Label:   w.Label,
 		Payload: string(payload),
+	})
+	// if something went wrong
+	if err != nil {
+		// we didn't write anything
+		return 0, err
 	}
-	payload, err := json.Marshal(action)
 
 	// attempt to publish the payload with the appropriate label
 	err = w.Publish("log", &events.Action{
 		Type:    ActionLogAction,
-		Payload: string(payload),
+		Payload: string(input),
 	})
 	// if something went wrong
 	if err != nil {

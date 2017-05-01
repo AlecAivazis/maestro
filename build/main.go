@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/nautilus/events"
 	"github.com/nautilus/services"
+	"github.com/spf13/afero"
 )
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 	// for now, just run a single build instance
 	service := MaestroRepo{
 		EventBroker: broker,
+		Fs:          afero.NewOsFs(),
 	}
 
 	// start the event listener
