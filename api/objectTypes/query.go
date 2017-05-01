@@ -29,7 +29,7 @@ var Query = graphql.NewObject(graphql.ObjectConfig{
 
 				// publish an action
 				broker.Ask("log", ansChan, errChan, &events.Action{
-					Type:    common.ActionRetrieveLog,
+					Type:    common.ActionRetrieveLogs,
 					Payload: "BuildProject",
 				})
 

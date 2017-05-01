@@ -32,11 +32,10 @@ func (s *MaestroLogging) HandleAction(a *events.Action) {
 			fmt.Println(err.Error())
 			return
 		}
-
 		// the log entry for the input
 		entry := common.LogEntry{
 			Body:        payload.Payload,
-			DateCreated: time.Now().Format("Sat Mar  7 11:06:39 PST 2015"),
+			DateCreated: time.Now().Format("Mon Jan _2 15:04:05 2006"),
 		}
 
 		// look for logs with the current label
@@ -50,7 +49,7 @@ func (s *MaestroLogging) HandleAction(a *events.Action) {
 			logCache[payload.Label] = []common.LogEntry{entry}
 		}
 	// if we need to retrieve logs for a particular project
-	case common.ActionRetrieveLog:
+	case common.ActionRetrieveLogs:
 		// marshal the appropriate log entries
 		str, err := json.Marshal(logCache[a.Payload])
 		if err != nil {

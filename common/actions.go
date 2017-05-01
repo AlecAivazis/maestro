@@ -18,5 +18,5 @@ type RetrieveLogPayload struct {
 const (
 	ActionBuildProject = "BuildProject"
 	ActionLogAction    = "LogAction"
-	ActionRetrieveLog  = "RetrieveLog"
+	ActionRetrieveLogs = "RetrieveLogs"
 )
