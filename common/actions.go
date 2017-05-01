@@ -11,7 +11,12 @@ type LogPayload struct {
 	Payload string `json:"payload"`
 }
 
+type RetrieveLogPayload struct {
+	Label string `json:"label"`
+}
+
 const (
 	ActionBuildProject = "BuildProject"
 	ActionLogAction    = "LogAction"
+	ActionRetrieveLog  = "RetrieveLog"
 )

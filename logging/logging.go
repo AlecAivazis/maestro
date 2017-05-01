@@ -1,11 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/nautilus/events"
-
-	"encoding/json"
 
 	"github.com/AlecAivazis/maestro/common"
 )
@@ -15,12 +15,12 @@ type MaestroLogging struct {
 	events.EventBroker
 }
 
-var logCache = make(map[string][]string)
+var logCache = make(map[string][]common.LogEntry)
 
 func (s *MaestroLogging) HandleAction(a *events.Action) {
 	// what we do with the action depends on the type
 	switch a.Type {
-	// if we are retrieving the information for a given repo
+	// if we are logging something new
 	case common.ActionLogAction:
 		// a log payload to write to
 		payload := common.LogPayload{}
@@ -33,15 +33,35 @@ func (s *MaestroLogging) HandleAction(a *events.Action) {
 			return
 		}
 
+		// the log entry for the input
+		entry := common.LogEntry{
+			Body:        payload.Payload,
+			DateCreated: time.Now().Format("Sat Mar  7 11:06:39 PST 2015"),
+		}
+
 		// look for logs with the current label
 		val, ok := logCache[payload.Label]
 		// if there is an entry in the cache
 		if ok {
 			// add the payload to the cache
-			logCache[payload.Label] = append(val, payload.Payload)
+			logCache[payload.Label] = append(val, entry)
 		} else {
 			// otherwise there is no log with that label so save one
-			logCache[payload.Label] = []string{payload.Payload}
+			logCache[payload.Label] = []common.LogEntry{entry}
 		}
+	// if we need to retrieve logs for a particular project
+	case common.ActionRetrieveLog:
+		// marshal the appropriate log entries
+		str, err := json.Marshal(logCache[a.Payload])
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		// send the logs to the requester
+		events.Reply(s, a, &events.Action{
+			Type:    "Hello",
+			Payload: string(str),
+		})
 	}
 }
