@@ -53,7 +53,7 @@ func (s *MaestroRepo) HandleAction(a *events.Action) {
 		}
 
 		// we should publish the output to the log service
-		writer, err := common.LogWriter(s, "BuildProject")
+		log, err := common.LogWriter(s, "BuildProject")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -81,7 +81,7 @@ func (s *MaestroRepo) HandleAction(a *events.Action) {
 		defer resp.Body.Close()
 
 		// copy the output to the log service
-		if _, err = io.Copy(writer, resp.Body); err != nil {
+		if _, err = io.Copy(log, resp.Body); err != nil {
 			fmt.Println(err.Error())
 		}
 	}

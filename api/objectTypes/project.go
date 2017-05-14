@@ -2,35 +2,32 @@ package objectTypes
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/AlecAivazis/maestro/common"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/relay"
-
 	"github.com/nautilus/events"
 	"github.com/nautilus/services/graphql"
 )
 
-var LogEntry = graphql.NewObject(graphql.ObjectConfig{
-	Name: "LogEntry",
+var Project = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Project",
 	Fields: graphql.Fields{
-		"dateCreated": &graphql.Field{
-			Type: graphql.String,
-		},
-		"body": &graphql.Field{
+		"name": &graphql.Field{
 			Type: graphql.String,
 		},
 	},
 })
 
-var LogEntryDefinition = relay.ConnectionDefinitions(relay.ConnectionConfig{
-	Name:     "Log",
-	NodeType: LogEntry,
+var ProjectDefinition = relay.ConnectionDefinitions(relay.ConnectionConfig{
+	Name:     "Project",
+	NodeType: Project,
 })
 
-var ResolveLogEntrys = func(p graphql.ResolveParams) (interface{}, error) {
+var ResolveProject = func(p graphql.ResolveParams) (interface{}, error) {
 	// the list of logs
-	logs := []interface{}{}
+	var project interface{}
 
 	// the broker that made the request
 	broker := p.Context.Value(GraphqlService.BrokerCtx).(events.EventBroker)
@@ -38,10 +35,19 @@ var ResolveLogEntrys = func(p graphql.ResolveParams) (interface{}, error) {
 	ansChan := make(chan *events.Action, 1)
 	errChan := make(chan error, 1)
 
+	// marshal the request
+	req, err := json.Marshal(common.RetrieveProjectPayload{
+		Name: "hello",
+	})
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
 	// publish an action
-	broker.Ask("log", ansChan, errChan, &events.Action{
+	broker.Ask("projects", ansChan, errChan, &events.Action{
 		Type:    common.ActionRetrieveProject,
-		Payload: "My Project",
+		Payload: string(req),
 	})
 
 	// wait for some kind of a reply
@@ -49,7 +55,7 @@ var ResolveLogEntrys = func(p graphql.ResolveParams) (interface{}, error) {
 	// if we were successful
 	case r := <-ansChan:
 		// treat the payload like json
-		err := json.Unmarshal([]byte(r.Payload), &logs)
+		err := json.Unmarshal([]byte(r.Payload), &project)
 		// if somthing went wrong
 		if err != nil {
 			// return the error
@@ -61,9 +67,6 @@ var ResolveLogEntrys = func(p graphql.ResolveParams) (interface{}, error) {
 		return nil, e
 	}
 
-	// convert args map[string]interface into ConnectionArguments
-	args := relay.NewConnectionArguments(p.Args)
-
 	// return a connection from the logs array
-	return relay.ConnectionFromArray(logs, args), nil
+	return project, nil
 }
