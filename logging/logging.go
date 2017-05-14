@@ -48,10 +48,21 @@ func (s *MaestroLogging) HandleAction(a *events.Action) {
 			// otherwise there is no log with that label so save one
 			logCache[payload.Label] = []common.LogEntry{entry}
 		}
+		fmt.Println(payload.Label, logCache[payload.Label])
 	// if we need to retrieve logs for a particular project
 	case common.ActionRetrieveLogs:
+		// the request for logs
+		req := common.RetrieveLogPayload{}
+
+		// try to unmarhsal the event payload into the structure we want
+		err := json.Unmarshal([]byte(a.Payload), &req)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
 		// marshal the appropriate log entries
-		str, err := json.Marshal(logCache[a.Payload])
+		str, err := json.Marshal(logCache[req.Label])
 		if err != nil {
 			fmt.Println(err.Error())
 			return
