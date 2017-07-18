@@ -48,7 +48,7 @@ func (s *MaestroLogging) HandleAction(a *events.Action) {
 			// otherwise there is no log with that label so save one
 			logCache[payload.Label] = []common.LogEntry{entry}
 		}
-		fmt.Println(payload.Label, logCache[payload.Label])
+
 	// if we need to retrieve logs for a particular project
 	case common.ActionRetrieveLogs:
 		// the request for logs

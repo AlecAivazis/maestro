@@ -16,7 +16,14 @@ type MaestroProjects struct {
 
 // for now, just keep the projects in memory
 var projects = map[string]Project{
-	"hello": &ProjectInMemory{"Hello", []*Ticket{}},
+	"hello": &ProjectInMemory{"Hello", []Ticket{
+		&TicketInMemory{
+			name: "Hello",
+			status: &StatusInMemory{
+				name: "Ready",
+			},
+		},
+	}},
 }
 
 func (s *MaestroProjects) HandleAction(a *events.Action) {
