@@ -1,3 +1,3 @@
-# maestroy
+# maestro
 
 VR-powered jira alternative
